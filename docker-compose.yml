@@ -7,12 +7,13 @@
         - POSTGRES_DB=postgres
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
-    web:
-      build: .
-      command: python manage.py runserver 0.0.0.0:8000
+
+    goods:
+      build: ./goods
+      command: python ./goods/manage.py runserver 0.0.0.0:8001
       volumes:
         - .:/code
       ports:
-        - "8000:8000"
+        - "8001:8001"
       depends_on:
         - db
