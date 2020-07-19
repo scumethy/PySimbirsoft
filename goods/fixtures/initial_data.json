@@ -1,0 +1,58 @@
+[
+    {
+        "model": "api.tag",
+        "pk": 0,
+        "fields": {
+            "name": "куплю"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 1,
+        "fields": {
+            "name": "продам"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 2,
+        "fields": {
+            "name": "срочно"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 3,
+        "fields": {
+            "name": "бесценок"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 4,
+        "fields": {
+            "name": "даром"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 5,
+        "fields": {
+            "name": "велосипед"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 6,
+        "fields": {
+            "name": "mark2"
+        }
+    },
+    {
+        "model": "api.tag",
+        "pk": 7,
+        "fields": {
+            "name": "котёнок"
+        }
+    }
+]

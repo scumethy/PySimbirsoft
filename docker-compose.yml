@@ -10,7 +10,7 @@
 
     goods:
       build: ./goods
-      command: python ./goods/manage.py runserver 0.0.0.0:8001
+      command: sh -c "python ./goods/manage.py makemigrations api && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/fixtures/initial_data.json && python ./goods/manage.py runserver 0.0.0.0:8001"
       volumes:
         - .:/code
       ports:
