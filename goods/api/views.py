@@ -1,15 +1,8 @@
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView
-from rest_framework.mixins import ListModelMixin
-from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
-from django.http import Http404
 from django.db.models import F
-from rest_framework import viewsets
-import requests
 
 from .models import Item, Tag
 from .serializer import (
