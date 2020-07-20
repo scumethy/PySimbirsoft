@@ -84,17 +84,6 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "django_db",
-#         "USER": "ssoft_admin",
-#         "PASSWORD": "1q2w3e",
-#         "HOST": "127.0.0.1",
-#         "PORT": 5432,
-#     }
-# }
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
