@@ -1,0 +1,98 @@
+swagger: "2.0"
+info:
+  description: |
+    Auth constructed with sessions, JWT and refresh tokens
+  version: "1.0"
+  title: User service
+basePath: /auth
+schemes:
+  - http
+  - https
+paths:
+  /register:
+    post:
+      tags:
+      - user
+      summary: Create user
+      parameters:
+        - name: username
+          type: string
+          in: formData
+          required: true
+        - name: pass
+          type: string
+          in: formData
+          required: true
+      responses:
+        "201":
+          description: successful operation
+
+  /login:
+    post:
+      tags:
+      - user
+      summary: Log in user
+      parameters:
+        - name: username
+          type: string
+          in: formData
+          required: true
+        - name: pass
+          type: string
+          in: formData
+          required: true
+      responses:
+        "201":
+          description: successful operation
+
+  /user/info:
+    post:
+      tags:
+        - user
+      summary: Get info about user
+      description: This can only be done by the logged in user.
+      responses:
+        "201":
+          description: successful operation
+        "401":
+          description: unauthorized - invalid tokens
+
+  /refreshtokens:
+    post:
+      tags:
+        - user
+      summary: Get new auth tokens
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: access
+          type: string
+          in: formData
+          required: true
+        - name: Authorization
+          description: refresh token id
+          type: string
+          in: header
+          required: true
+      responses:
+        "201":
+          description: successful operation
+        "401":
+          description: unauthorized - invalid tokens
+
+  /logout:
+    get:
+      tags:
+        - user
+      summary: Log out user
+      description: This can only be done by the logged in user.
+      parameters:
+        - name: Authorization
+          description: refresh token id
+          type: string
+          in: header
+          required: true
+      responses:
+        "201":
+          description: successful operation
+        "401":
+          description: unauthorized - invalid tokens

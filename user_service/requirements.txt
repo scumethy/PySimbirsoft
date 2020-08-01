@@ -1,0 +1,11 @@
+asyncpgsa
+aiopg
+sqlalchemy
+Alembic
+aiohttp
+aioredis
+argon2-cffi
+requests
+python-dotenv
+python-jose[cryptography]
+aiohttp_swagger
