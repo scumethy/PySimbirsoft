@@ -24,7 +24,7 @@ import sys
 sys.path = ["", ".."] + sys.path[1:]
 from user_service.api import db
 
-target_metadata = db.metadata
+target_metadata = db.Base.metadata
 
 
 # other values from the config, defined by the needs of env.py,

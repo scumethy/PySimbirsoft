@@ -2,9 +2,9 @@ import secrets
 from jose import jwt
 from aiohttp import web
 
-from .db import users, get_user_by_username, verify_user_data, add_user
+from .db import User
 from .redis import save_pair, del_pair, check_key_redis, set_ttl
-from .utils import get_unique_uuid, get_password_hash, generate_jwt
+from .utils import get_unique_uuid, generate_jwt
 from .decorators import login_required
 from .config import JWT
 
@@ -24,7 +24,7 @@ class Login(web.View):
         password = data.get("pass")
 
         # check username and password
-        user = await verify_user_data(self.request.app["db_pool"], username, password)
+        user = await User.verify_user_data(self.request.app["db_pool"], username, password)
         if user is None:
             raise web.HTTPUnauthorized()
 
@@ -37,7 +37,9 @@ class Login(web.View):
         await save_pair(
             self.request.app["redis_pool"], refresh_token_uuid, refresh_token
         )
-        await set_ttl(self.request.app["redis_pool"], refresh_token_uuid, 30 * 24 * 60 * 60)
+        await set_ttl(
+            self.request.app["redis_pool"], refresh_token_uuid, 30 * 24 * 60 * 60
+        )
 
         # set sesstions cookie
         response = web.Response()
@@ -54,7 +56,7 @@ class Register(web.View):
         username = body.get("username")
         password = body.get("pass")
 
-        await add_user(self.request.app["db_pool"], username, password)
+        await User.add_user(self.request.app["db_pool"], username, password)
 
         return web.Response(text="Registration done!")
 

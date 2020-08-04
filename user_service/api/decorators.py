@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from .utils import verify_token
-from .db import get_user_by_id
+from .db import User
 
 
 def login_required(func):
@@ -13,7 +13,7 @@ def login_required(func):
         user_id = verify_data["user_id"]
 
         if verify_data["is_valid"]:
-            self.request.user = await get_user_by_id(
+            self.request.user = await User.get_user_by_id(
                 self.request.app["db_pool"], user_id
             )
         else:

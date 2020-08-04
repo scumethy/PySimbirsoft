@@ -1,9 +1,9 @@
 from aiohttp import web
 from aiohttp_swagger import *
 
-from api.db import init_db, users
-from api.redis import setup_redis
+from api.redis import setup_redis, close_redis
 from api.routes import setup_routes
+from api.db import init_db, close_pg
 
 
 async def init_app():
@@ -19,6 +19,9 @@ async def init_app():
         swagger_url="/auth/doc",
         ui_version=3,
     )
+
+    app.on_cleanup.append(close_pg)
+    app.on_cleanup.append(close_redis)
 
     return app
 

@@ -9,6 +9,12 @@ async def setup_redis(app):
     return pool
 
 
+async def close_redis(app):
+    app["redis_pool"].close()
+    app["redis_pool"].wait_closed()
+    del app["redis_pool"]
+
+
 async def set_ttl(redis_pool, key, seconds):
     await redis_pool.expire(key, seconds)
 
