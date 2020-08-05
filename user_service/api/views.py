@@ -6,7 +6,7 @@ from .db import User
 from .redis import save_pair, del_pair, check_key_redis, set_ttl
 from .utils import get_unique_uuid, generate_jwt
 from .decorators import login_required
-from .config import JWT
+from user_service.config import config
 
 
 class LogOut(web.View):
@@ -24,7 +24,9 @@ class Login(web.View):
         password = data.get("pass")
 
         # check username and password
-        user = await User.verify_user_data(self.request.app["db_pool"], username, password)
+        user = await User.verify_user_data(
+            self.request.app["db_pool"], username, password
+        )
         if user is None:
             raise web.HTTPUnauthorized()
 
@@ -74,8 +76,8 @@ class RefreshTokens(web.View):
         access_token = body.get("access")
         access_token_payload = jwt.decode(
             access_token,
-            JWT["SECRET"],
-            algorithms=JWT["ALGORITHM"],
+            config.jwt_secret,
+            algorithms=config.jwt_algo,
             options={"verify_exp": False},
         )
 

@@ -3,7 +3,7 @@ from sqlalchemy import MetaData
 from sqlalchemy import Column, String
 from sqlalchemy.ext.declarative import declarative_base
 
-from .config import DB
+from user_service.config import config
 from .utils import get_password_hash, get_unique_uuid, verify_password, user_to_json
 
 Base = declarative_base(metadata=MetaData())
@@ -73,5 +73,7 @@ async def close_pg(app):
 
 
 def construct_db_url():
-    DSN = "postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".format(**DB)
+    DSN = "postgresql://{0}:{1}@{2}:{3}/{4}".format(
+        config.db_user, config.db_pass, config.db_host, config.db_port, config.db_name
+    )
     return DSN

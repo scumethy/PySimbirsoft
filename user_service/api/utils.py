@@ -3,7 +3,7 @@ from jose import jwt
 from argon2 import PasswordHasher
 import uuid
 
-from .config import JWT
+from user_service.config import config
 
 
 def get_unique_uuid():
@@ -27,7 +27,7 @@ def verify_password(password_hash, password):
 
 def generate_jwt(user_id):
     payload = {"user_id": user_id, "exp": datetime.utcnow() + timedelta(minutes=45)}
-    jwt_token = jwt.encode(payload, JWT["SECRET"], JWT["ALGORITHM"])
+    jwt_token = jwt.encode(payload, config.jwt_secret, config.jwt_algo)
     return jwt_token
 
 
@@ -35,13 +35,13 @@ def verify_token(jwt_token):
     if jwt_token:
         try:
             payload = jwt.decode(
-                jwt_token, key=JWT["SECRET"], algorithms=JWT["ALGORITHM"]
+                jwt_token, key=config.jwt_secret, algorithms=config.jwt_algo
             )
         except jwt.ExpiredSignatureError:
             payload = jwt.decode(
                 jwt_token,
-                key=JWT["SECRET"],
-                algorithms=JWT["ALGORITHM"],
+                key=config.jwt_secret,
+                algorithms=config.jwt_algo,
                 options={"verify_exp": False},
             )
             return {"user_id": payload["user_id"], "is_valid": False}

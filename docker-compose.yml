@@ -27,7 +27,9 @@
 
     user_service:
       build: ./user_service
-      command: bash -c "cd ./user_service && alembic upgrade head && cd .. && python3 ./user_service/main.py"
+      env_file:
+        - user_service/.env
+      command: bash -c "cd ./user_service && alembic upgrade head && cd .. && PYTHONPATH='.' python3 ./user_service/main.py"
       volumes:
         - .:/code
       ports:
