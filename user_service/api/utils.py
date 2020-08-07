@@ -4,6 +4,7 @@ from argon2 import PasswordHasher
 import uuid
 
 from user_service.config import config
+import user_service.api.errors as errors
 
 
 def get_unique_uuid():
@@ -37,16 +38,9 @@ def verify_token(jwt_token):
             payload = jwt.decode(
                 jwt_token, key=config.jwt_secret, algorithms=config.jwt_algo
             )
+            return payload["user_id"]
         except jwt.ExpiredSignatureError:
-            payload = jwt.decode(
-                jwt_token,
-                key=config.jwt_secret,
-                algorithms=config.jwt_algo,
-                options={"verify_exp": False},
-            )
-            return {"user_id": payload["user_id"], "is_valid": False}
-
-        return {"user_id": payload["user_id"], "is_valid": True}
+            raise errors.BadAuthData
 
 
 def user_to_json(user):

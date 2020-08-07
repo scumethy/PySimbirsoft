@@ -2,9 +2,12 @@ from aiopg.sa import create_engine
 from sqlalchemy import MetaData
 from sqlalchemy import Column, String
 from sqlalchemy.ext.declarative import declarative_base
+import psycopg2
 
 from user_service.config import config
+import user_service.api.errors as errors
 from .utils import get_password_hash, get_unique_uuid, verify_password, user_to_json
+
 
 Base = declarative_base(metadata=MetaData())
 
@@ -34,8 +37,9 @@ class User(Base):
                 user_t.select().where(user_t.c.username == username)
             )
             selected_line = await db_result.first()
-            user = user_to_json(selected_line)
-        return user
+            if selected_line is not None:
+                user = user_to_json(selected_line)
+                return user
 
     @classmethod
     async def add_user(cls, db_pool, username, password):
@@ -43,12 +47,14 @@ class User(Base):
         userid = get_unique_uuid()
         password_hash = get_password_hash(password)
         async with db_pool.acquire() as conn:
-            await conn.execute(
-                user_t.insert().values(
-                    id=userid, username=username, password_hash=password_hash
+            try:
+                await conn.execute(
+                    user_t.insert().values(
+                        id=userid, username=username, password_hash=password_hash
+                    )
                 )
-            )
-            return userid
+            except:
+                raise errors.BadRegData
 
     @classmethod
     async def verify_user_data(cls, db_pool, username, password):

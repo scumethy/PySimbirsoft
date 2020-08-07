@@ -1,20 +1,29 @@
 import secrets
+import jose
 from jose import jwt
 from aiohttp import web
+import aioredis
 
 from .db import User
 from .redis import save_pair, del_pair, check_key_redis, set_ttl
 from .utils import get_unique_uuid, generate_jwt
 from .decorators import login_required
 from user_service.config import config
+import user_service.api.errors as errors
 
 
 class LogOut(web.View):
     @login_required
     async def get(self):
         refresh_token_id = self.request.headers["Authorization"]
-        await del_pair(self.request.app["redis_pool"], refresh_token_id)
-        return web.Response(text="Logout was successful!")
+        redis = self.request.app["redis_pool"]
+        is_deleted = await redis.delete(refresh_token_id)
+        if not is_deleted:
+            raise errors.BadLogout
+        else:
+            return web.json_response(
+                data={"status": 204, "message": "Successful logout"}
+            )
 
 
 class Login(web.View):
@@ -28,7 +37,7 @@ class Login(web.View):
             self.request.app["db_pool"], username, password
         )
         if user is None:
-            raise web.HTTPUnauthorized()
+            raise errors.BadLoginData
 
         # generate tokens
         jwt_token = generate_jwt(user["id"])
@@ -44,11 +53,11 @@ class Login(web.View):
         )
 
         # set sesstions cookie
-        response = web.Response()
+        response = web.json_response(
+            data={"status": 205, "message": "Login completed successful"}
+        )
         response.set_cookie("access", jwt_token)
         response.set_cookie("refresh", refresh_token_uuid)
-        response.text = "Login was successful!"
-
         return response
 
 
@@ -60,13 +69,13 @@ class Register(web.View):
 
         await User.add_user(self.request.app["db_pool"], username, password)
 
-        return web.Response(text="Registration done!")
+        return web.json_response(data={"status": 205, "message": "Registration done"})
 
 
 class UserInfo(web.View):
     @login_required
     async def post(self):
-        return web.json_response(self.request.user)
+        return web.json_response(data=self.request.user, status=206)
 
 
 class RefreshTokens(web.View):
@@ -74,12 +83,19 @@ class RefreshTokens(web.View):
         refresh_token_id = self.request.headers["Authorization"]
         body = await self.request.post()
         access_token = body.get("access")
-        access_token_payload = jwt.decode(
-            access_token,
-            config.jwt_secret,
-            algorithms=config.jwt_algo,
-            options={"verify_exp": False},
-        )
+        if not (refresh_token_id or access_token):
+            raise errors.BadAuthData
+
+        # decode jwt with verify
+        try:
+            access_token_payload = jwt.decode(
+                access_token,
+                config.jwt_secret,
+                algorithms=config.jwt_algo,
+                options={"verify_exp": False},
+            )
+        except jose.exceptions.JWTError:
+            raise errors.BadAuthData
 
         if await check_key_redis(self.request.app["redis_pool"], refresh_token_id):
             jwt_token = generate_jwt(access_token_payload["user_id"])
@@ -92,12 +108,17 @@ class RefreshTokens(web.View):
                 new_refresh_token_uuid,
                 new_refresh_token,
             )
-            await set_ttl(self.request.app["redis_pool"], new_refresh_token_uuid, 60)
+            await set_ttl(
+                self.request.app["redis_pool"],
+                new_refresh_token_uuid,
+                30 * 24 * 60 * 60,
+            )
 
-            response = web.Response()
+            response = web.json_response(
+                data={"status": 206, "message": "Tokens are refreshed successful"}
+            )
             response.set_cookie("access", jwt_token)
             response.set_cookie("refresh", new_refresh_token_uuid)
-            response.text = "Tokens refreshed!"
             return response
         else:
-            return web.HTTPUnauthorized(text="Invalid refresh token")
+            raise errors.BadAuthData
