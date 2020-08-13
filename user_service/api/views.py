@@ -15,7 +15,7 @@ import user_service.api.errors as errors
 class LogOut(web.View):
     @login_required
     async def get(self):
-        refresh_token_id = self.request.headers["Authorization"]
+        refreshtoken_id = self.request.headers["Authorization"]
         redis = self.request.app["redis_pool"]
         is_deleted = await redis.delete(refresh_token_id)
         if not is_deleted:

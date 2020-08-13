@@ -3,6 +3,9 @@
   services:
     db:
       image: postgres
+      build:
+        context: ./postgres_dockerfile
+        dockerfile: postgres
       environment:
         - POSTGRES_DB=postgres
         - POSTGRES_USER=postgres
@@ -14,6 +17,16 @@
         - "6379:6379"
       environment:
         - ALLOW_EMPTY_PASSWORD=yes
+
+    rabbit:
+      image: rabbitmq:3.6.6-management
+      hostname: rabbit
+      environment:
+        - RABBITMQ_DEFAULT_USER=guest
+        - RABBITMQ_DEFAULT_PASS=guest
+      ports:
+        - "5672:5672"
+        - "15672:15672"
 
     goods:
       build: ./goods
@@ -37,3 +50,25 @@
       depends_on:
         - db
         - redis
+
+    email:
+      image: bytemark/smtp
+      restart: always
+      environment:
+        RELAY_HOST: smtp.yandex.ru
+        RELAY_PORT: 587
+        RELAY_USERNAME: username
+        RELAY_PASSWORD: password
+
+    mail_service:
+      build: ./mail_service
+      command: bash -c "alembic upgrade head && uvicorn src.api.asgi:app --reload --host 0.0.0.0 --port 8008"
+      volumes:
+        - .:/code
+      ports:
+        - "8008:8008"
+      depends_on:
+        - db
+        - rabbit
+      environment:
+        WAIT_HOSTS: db:5432, rabbit:5672
