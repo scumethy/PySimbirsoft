@@ -1,74 +1,99 @@
-  version: '3'
+version: '3'
 
-  services:
-    db:
-      image: postgres
-      build:
-        context: ./postgres_dockerfile
-        dockerfile: postgres
-      environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
+services:
+  db:
+    image: postgres
+    build:
+      context: ./postgres_dockerfile
+      dockerfile: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
-    redis:
-      image: 'redis'
-      ports:
-        - "6379:6379"
-      environment:
-        - ALLOW_EMPTY_PASSWORD=yes
+  redis:
+    image: 'redis'
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
 
-    rabbit:
-      image: rabbitmq:3.6.6-management
-      hostname: rabbit
-      environment:
-        - RABBITMQ_DEFAULT_USER=guest
-        - RABBITMQ_DEFAULT_PASS=guest
-      ports:
-        - "5672:5672"
-        - "15672:15672"
+  rabbit:
+    image: rabbitmq:3.6.6-management
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
 
-    goods:
-      build: ./goods
-      command: bash -c "python3 ./goods/manage.py makemigrations api && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/fixtures/initial_data.json && python ./goods/manage.py runserver 0.0.0.0:8001"
-      volumes:
-        - .:/code
-      ports:
-        - "8001:8001"
-      depends_on:
-        - db
+  goods:
+    build: ./goods
+    command: bash -c "python3 ./goods/manage.py makemigrations api && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/fixtures/initial_data.json && python ./goods/manage.py runserver 0.0.0.0:8001"
+    volumes:
+      - .:/code
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
 
-    user_service:
-      build: ./user_service
-      env_file:
-        - user_service/.env
-      command: bash -c "cd ./user_service && alembic upgrade head && cd .. && PYTHONPATH='.' python3 ./user_service/main.py"
-      volumes:
-        - .:/code
-      ports:
-        - "8080:8080"
-      depends_on:
-        - db
-        - redis
+  user_service:
+    build: ./user_service
+    env_file:
+      - user_service/.env
+    command: bash -c "cd ./user_service && alembic upgrade head && cd .. && PYTHONPATH='.' python3 ./user_service/main.py"
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
 
-    email:
-      image: bytemark/smtp
-      restart: always
-      environment:
-        RELAY_HOST: smtp.yandex.ru
-        RELAY_PORT: 587
-        RELAY_USERNAME: username
-        RELAY_PASSWORD: password
+  email:
+    image: bytemark/smtp
+    restart: always
+    environment:
+      RELAY_HOST: smtp.yandex.ru
+      RELAY_PORT: 587
+      RELAY_USERNAME: username
+      RELAY_PASSWORD: password
 
-    mail_service:
-      build: ./mail_service
-      command: bash -c "alembic upgrade head && uvicorn src.api.asgi:app --reload --host 0.0.0.0 --port 8008"
-      volumes:
-        - .:/code
-      ports:
-        - "8008:8008"
-      depends_on:
-        - db
-        - rabbit
-      environment:
-        WAIT_HOSTS: db:5432, rabbit:5672
+  mail_service:
+    build: ./mail_service
+    volumes:
+      - .:/code
+    ports:
+      - "8008:8008"
+    depends_on:
+      - db
+      - rabbit
+    environment:
+      WAIT_HOSTS: db:5432, rabbit:5672
+
+  monitor_service:
+    build: ./monitoring_service
+    volumes:
+      - .:/code
+    ports:
+      - "8088:8088"
+    depends_on:
+      - db
+      - rabbit
+    environment:
+      WAIT_HOSTS: db:5432, rabbit:5672
+
+  monitor_worker:
+    build:
+      context: ./monitoring_service
+      dockerfile: celery-worker.Dockerfile
+    volumes:
+      - .:/code
+    depends_on:
+      - rabbit
+      - monitor_service
+    environment:
+      WAIT_HOSTS: rabbit:5672, monitor_service:8088
+
+volumes:
+  monitor_service:
