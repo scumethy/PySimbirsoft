@@ -8,12 +8,32 @@
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
 
+    redis:
+      image: 'redis'
+      ports:
+        - "6379:6379"
+      environment:
+        - ALLOW_EMPTY_PASSWORD=yes
+
     goods:
       build: ./goods
-      command: sh -c "python ./goods/manage.py makemigrations api && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/fixtures/initial_data.json && python ./goods/manage.py runserver 0.0.0.0:8001"
+      command: bash -c "python3 ./goods/manage.py makemigrations api && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/fixtures/initial_data.json && python ./goods/manage.py runserver 0.0.0.0:8001"
       volumes:
         - .:/code
       ports:
         - "8001:8001"
       depends_on:
         - db
+
+    user_service:
+      build: ./user_service
+      env_file:
+        - user_service/.env
+      command: bash -c "cd ./user_service && alembic upgrade head && cd .. && PYTHONPATH='.' python3 ./user_service/main.py"
+      volumes:
+        - .:/code
+      ports:
+        - "8080:8080"
+      depends_on:
+        - db
+        - redis
