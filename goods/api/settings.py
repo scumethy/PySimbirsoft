@@ -66,7 +66,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"
 }
 
-MEDIA_URL = "/media/"
+MEDIA_URL = "/api/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ROOT_URLCONF = "api.urls"
@@ -94,5 +94,5 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/static/"
+STATIC_URL = "/api/static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)

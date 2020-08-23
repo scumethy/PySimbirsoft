@@ -6,7 +6,7 @@ from .schemas import EventModel
 router = APIRouter()
 
 
-@router.post("/event")
+@router.post("api/event")
 async def add_event(event: EventModel):
     await send_task.delay(**event.dict())
 
