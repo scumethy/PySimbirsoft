@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from aio_pika import connect, Message
 
+from src import config
 from .models import Temp
 
 router = APIRouter()
@@ -40,7 +41,7 @@ async def delete_temp(id: str):
 
 
 async def send_rabbitmq(msg):
-    connection = await connect("amqp://guest:guest@rabbit/")
+    connection = await connect(config.RABBITMQ_DSN)
 
     channel = await connection.channel()
     await channel.default_exchange.publish(

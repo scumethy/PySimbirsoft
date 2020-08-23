@@ -1,7 +1,9 @@
+import os
 from sqlalchemy.engine.url import URL, make_url
 from starlette.config import Config
 from starlette.datastructures import Secret
 from dotenv import load_dotenv
+
 load_dotenv()
 
 config = Config(".env")
@@ -24,3 +26,12 @@ DB_DSN = config(
         database=DB_DATABASE,
     ),
 )
+
+RABBITMQ_USER = os.getenv("RABBITMQ_USER")
+RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+RABBITMQ_DSN = "amqp://{user}:{password}@{host}/".format(
+    user=RABBITMQ_USER, password=RABBITMQ_PASS, host=RABBITMQ_HOST
+)
+
+EMAIL_ADDRESSER = os.getenv("EMAIL_ADDRESSER")
