@@ -18,6 +18,13 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 
+  reg_redis:
+    image: 'redis'
+    ports:
+      - "6373:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
   rabbit:
     image: rabbitmq:3.6.6-management
     hostname: rabbit
@@ -53,8 +60,8 @@ services:
     environment:
       RELAY_HOST: smtp.yandex.ru
       RELAY_PORT: 587
-      RELAY_USERNAME: username
-      RELAY_PASSWORD: password
+      RELAY_USERNAME: scumethy@le-memese.com
+      RELAY_PASSWORD: pfQsSs9iNM3UCAAT43MN82qxgJtuDtHjuevEr5et
 
   mail_service:
     build: ./mail_service
@@ -67,6 +74,7 @@ services:
       - rabbit
     environment:
       WAIT_HOSTS: db:5432, rabbit:5672
+      WAIT_HOSTS_TIMEOUT: 120
 
   monitor_service:
     build: ./monitoring_service
@@ -79,6 +87,7 @@ services:
       - rabbit
     environment:
       WAIT_HOSTS: db:5432, rabbit:5672
+      WAIT_HOSTS_TIMEOUT: 120
 
   monitor_worker:
     build:
@@ -91,6 +100,22 @@ services:
       - monitor_service
     environment:
       WAIT_HOSTS: rabbit:5672, monitor_service:8088
+      WAIT_HOSTS_TIMEOUT: 120
+
+  general_service:
+    build: ./general_service
+    volumes:
+      - .:/code
+    ports:
+      - "8888:8888"
+    depends_on:
+      - goods
+      - user_service
+      - mail_service
+      - monitor_service
+    environment:
+      WAIT_HOSTS: db:5432, reg_redis:6379, goods:8001, user_service:8080, mail_service:8008, monitor_service:8088
+      WAIT_HOSTS_TIMEOUT: 120
 
 volumes:
   monitor_service:
