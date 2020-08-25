@@ -8,4 +8,4 @@ WORKDIR /code
 
 COPY . .
 
-RUN pip install -r requirements.txt -i https://pypi.douban.com/simple
+RUN pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/

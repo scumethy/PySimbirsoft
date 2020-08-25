@@ -65,7 +65,7 @@ class Register(web.View):
     async def post(self):
         body = await self.request.post()
         username = body.get("username")
-        password = body.get("pass")
+        password = body.get("password")
 
         await User.add_user(self.request.app["db_pool"], username, password)
 
