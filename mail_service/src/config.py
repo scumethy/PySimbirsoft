@@ -34,4 +34,5 @@ RABBITMQ_DSN = "amqp://{user}:{password}@{host}/".format(
     user=RABBITMQ_USER, password=RABBITMQ_PASS, host=RABBITMQ_HOST
 )
 
-EMAIL_ADDRESSER = os.getenv("EMAIL_ADDRESSER")
+EMAIL_USERNAME = os.getenv("EMAIL_USERNAME")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")

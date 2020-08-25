@@ -10,18 +10,17 @@ async def on_message(message: IncomingMessage):
     message = json.loads(message.body.decode("utf-8"))
 
     em = EmailMessage()
-    em["From"] = config.EMAIL_ADDRESSER
+    em["From"] = config.EMAIL_USERNAME
     em["To"] = message["recipient"]
     em["Subject"] = "subject"
     em.set_content(message["text"])
 
+    print(config.EMAIL_USERNAME, config.EMAIL_PASSWORD)
+
     await aiosmtplib.send(
         em,
-        hostname="smtp.yandex.ru",
-        port=25,
-        username="scumethy@le-memese.com",
-        password="pfQsSs9iNM3UCAAT43MN82qxgJtuDtHjuevEr5et",
-        use_tls=True,
+        hostname="email",
+        port=25
     )
 
 
