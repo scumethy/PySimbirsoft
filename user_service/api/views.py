@@ -30,7 +30,7 @@ class Login(web.View):
     async def post(self):
         data = await self.request.post()
         username = data.get("username")
-        password = data.get("pass")
+        password = data.get("password")
 
         # check username and password
         user = await User.verify_user_data(
@@ -52,12 +52,15 @@ class Login(web.View):
             self.request.app["redis_pool"], refresh_token_uuid, 30 * 24 * 60 * 60
         )
 
-        # set sesstions cookie
+        # set sessions cookie
         response = web.json_response(
-            data={"status": 205, "message": "Login completed successful"}
+            data={
+                "status": 205,
+                "message": "Login completed successful",
+                "access": jwt_token,
+                "refresh": refresh_token_uuid,
+            }
         )
-        response.set_cookie("access", jwt_token)
-        response.set_cookie("refresh", refresh_token_uuid)
         return response
 
 
@@ -115,10 +118,13 @@ class RefreshTokens(web.View):
             )
 
             response = web.json_response(
-                data={"status": 206, "message": "Tokens are refreshed successful"}
+                data={
+                    "status": 206,
+                    "message": "Tokens are refreshed successful",
+                    "access": jwt_token,
+                    "refresh": new_refresh_token_uuid,
+                }
             )
-            response.set_cookie("access", jwt_token)
-            response.set_cookie("refresh", new_refresh_token_uuid)
             return response
         else:
             raise errors.BadAuthData
