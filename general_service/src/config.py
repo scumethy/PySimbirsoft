@@ -27,6 +27,7 @@ DB_DSN = config(
 )
 
 USER_SERVICE_URL = os.getenv("USER_SERVICE_URL")
+MONITORING_URL = os.getenv("MONITORING_URL")
 
 RABBITMQ_USER = os.getenv("RABBITMQ_USER")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS")

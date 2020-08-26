@@ -2,7 +2,8 @@ import json
 
 import aioredis
 import uuid
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from aio_pika import connect, Message
 
@@ -32,7 +33,6 @@ async def confirm(token: str):
 
 @router.post("/account/create/finish")
 async def finish_reg(token: str, password: str):
-    # get login from redis
     redis_pool = await aioredis.create_redis_pool(
         (config.REDIS_HOST, config.REDIS_PORT)
     )
@@ -74,6 +74,50 @@ async def register(login: str):
     await send_rabbitmq(message_data)
 
     return {"status": 202, "confirm_link": confirm_link}
+
+
+@router.post("/account/login")
+async def login(username: str, password: str):
+    us_resp = await user_service.login(username, password)
+
+    response_content = dict(status=us_resp["status"], message=us_resp["message"])
+    response = JSONResponse(content=response_content)
+    response.set_cookie(key="access", value=us_resp["access"])
+    response.set_cookie(key="refresh", value=us_resp["refresh"])
+    return response
+
+
+@router.post("/user/info")
+async def userinfo(request: Request):
+    access_token = dict(request.cookies).get("access")
+    us_resp = await user_service.userinfo(access_token)
+    return us_resp
+
+
+@router.get("/account/logout")
+async def logout(request: Request):
+    cookies = dict(request.cookies)
+    access_token = cookies.get("access")
+    refresh_token_id = cookies.get("refresh")
+    us_resp = await user_service.logout(access_token, refresh_token_id)
+    return us_resp
+
+
+@router.post("/account/refreshtokens")
+async def refresh_tokens(request: Request):
+    # get tokens from user cookies
+    cookies = dict(request.cookies)
+    access_token = cookies.get("access")
+    refresh_token_id = cookies.get("refresh")
+    # request to user service for create new tokens
+    us_resp = await user_service.refreshtokens(access_token, refresh_token_id)
+
+    # create response and put cookies
+    response_content = dict(status=us_resp["status"], message=us_resp["message"])
+    response = JSONResponse(content=response_content)
+    response.set_cookie(key="access", value=us_resp["access"])
+    response.set_cookie(key="refresh", value=us_resp["refresh"])
+    return response
 
 
 def init_app(app):
