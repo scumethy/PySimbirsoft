@@ -1,4 +1,4 @@
-from .views import Register, Login, UserInfo, RefreshTokens, LogOut
+from .views import Register, Login, UserInfo, RefreshTokens, LogOut, VerifyUser
 
 
 def setup_routes(app):
@@ -14,4 +14,7 @@ def setup_routes(app):
     )
     app.router.add_route(
         method="GET", path="/api/auth/logout", handler=LogOut, name="logout"
+    )
+    app.router.add_route(
+        method="POST", path="/api/auth/verify", handler=VerifyUser, name="verify"
     )

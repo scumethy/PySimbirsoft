@@ -9,6 +9,7 @@ class Tag(models.Model):
 
 
 class Item(models.Model):
+    user_id = models.CharField(max_length=100, null=False)
     title = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
     city = models.CharField(max_length=100)

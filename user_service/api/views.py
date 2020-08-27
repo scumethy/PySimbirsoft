@@ -6,7 +6,7 @@ import aioredis
 
 from .db import User
 from .redis import save_pair, del_pair, check_key_redis, set_ttl
-from .utils import get_unique_uuid, generate_jwt
+from .utils import get_unique_uuid, generate_jwt, verify_token
 from .decorators import login_required
 from user_service.config import config
 import user_service.api.errors as errors
@@ -76,9 +76,13 @@ class Register(web.View):
 
 
 class UserInfo(web.View):
-    @login_required
     async def post(self):
-        return web.json_response(data=self.request.user, status=206)
+        body = await self.request.post()
+        user_id = body.get("user_id")
+
+        user = await User.get_user_by_id(self.request.app["db_pool"], user_id)
+
+        return web.json_response(data={"status":206, "message": "User was founded", "user": user})
 
 
 class RefreshTokens(web.View):
@@ -128,3 +132,14 @@ class RefreshTokens(web.View):
             return response
         else:
             raise errors.BadAuthData
+
+
+class VerifyUser(web.View):
+    async def post(self):
+        body = await self.request.post()
+        access_token = body.get("access")
+        user_id = verify_token(access_token)
+
+        return web.json_response(
+            data={"status": 205, "message": "User verified", "user_id": user_id}
+        )

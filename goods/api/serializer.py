@@ -23,6 +23,7 @@ class ItemListSerializer(ModelSerializer):
     class Meta:
         model = Item
         fields = [
+            "user_id",
             "title",
             "description",
             "city",

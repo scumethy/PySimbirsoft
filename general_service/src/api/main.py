@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 
 from src.api import db
-from .views import init_app
+from src.api.views import users, goods
+from src.api.initializator import put_routers
 
 
 def get_app():
     app = FastAPI(title="General service app")
+
     db.init_app(app)
-    init_app(app)
+
+    put_routers(app)
+
     return app
