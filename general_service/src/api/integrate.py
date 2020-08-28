@@ -3,7 +3,6 @@ from datetime import datetime
 import httpx
 
 from src import config
-from src.api.schemas import ItemModel
 
 
 # TODO: +- create base class w/ method that create client and request to apis -+
@@ -15,7 +14,7 @@ class ServiceAPI:
         async with httpx.AsyncClient() as client:
             resp = await client.post(
                 f"{config.MONITORING_URL}/api/monitoring_service/event",
-                json=dict(**kwargs)
+                json=dict(**kwargs),
             )
             response = resp.json()
             return response
@@ -40,7 +39,7 @@ class ServiceAPI:
                 service=service,
                 url=url,
                 status_code=status_code,
-                response_time=response_time
+                response_time=response_time,
             )
 
             return resp

@@ -62,8 +62,8 @@ services:
     environment:
       RELAY_HOST: smtp.yandex.ru
       RELAY_PORT: 587
-      RELAY_USERNAME: scumethy@le-memese.com
-      RELAY_PASSWORD: pfQsSs9iNM3UCAAT43MN82qxgJtuDtHjuevEr5et
+      RELAY_USERNAME:
+      RELAY_PASSWORD:
 
   mail_service:
     build: ./mail_service

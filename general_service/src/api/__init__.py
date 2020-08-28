@@ -1,5 +1,4 @@
 from gino_starlette import Gino
-import aioredis
 
 from src import config
 from src.api.integrate import (

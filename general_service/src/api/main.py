@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
 from src.api import db
-from src.api.views import users, goods
 from src.api.initializator import put_routers
 
 

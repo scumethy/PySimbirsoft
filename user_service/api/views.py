@@ -82,7 +82,9 @@ class UserInfo(web.View):
 
         user = await User.get_user_by_id(self.request.app["db_pool"], user_id)
 
-        return web.json_response(data={"status":206, "message": "User was founded", "user": user})
+        return web.json_response(
+            data={"status": 206, "message": "User was founded", "user": user}
+        )
 
 
 class RefreshTokens(web.View):
