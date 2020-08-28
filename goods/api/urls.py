@@ -10,10 +10,10 @@ from .yasg import urlpatterns as doc_urls
 schema_view = get_swagger_view(title="Goods")
 
 urlpatterns = [
-    path("api/items/", ItemListAPIView.as_view()),
-    path("api/items/short/<int:pk>", ItemShortAPIVIew.as_view()),
-    url(r"api/items/(?P<pk>[0-9]+)$", ItemDetailAPIView.as_view()),
-    url("api/tags/", TagListAPIView.as_view()),
+    path("api/goods/items/", ItemListAPIView.as_view()),
+    path("api/goods/items/short/<int:pk>", ItemShortAPIVIew.as_view()),
+    url(r"api/goods/items/(?P<pk>[0-9]+)$", ItemDetailAPIView.as_view()),
+    url("api/goods/tags/", TagListAPIView.as_view()),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

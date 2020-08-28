@@ -10,7 +10,7 @@ from .models import Temp
 router = APIRouter()
 
 
-@router.get("/api/temp/{id}")
+@router.get("/api/mail_service/temp/{id}")
 async def get_temp(id: str):
     temp = await Temp.get_or_404(id)
     return temp.to_dict()
@@ -27,13 +27,13 @@ class MailModel(BaseModel):
     params: dict
 
 
-@router.post("/api/temp")
+@router.post("/api/mail_service/temp")
 async def add_temp(temp: TempModel):
     rv = await Temp.create(name=temp.name, text=temp.text)
     return rv.to_dict()
 
 
-@router.delete("/api/temp/{id}")
+@router.delete("/api/mail_service/temp/{id}")
 async def delete_temp(id: str):
     temp = await Temp.get_or_404(id)
     await temp.delete()
@@ -51,7 +51,7 @@ async def send_rabbitmq(msg):
     await connection.close()
 
 
-@router.post("/api/mail")
+@router.post("/api/mail_service/mail")
 async def mailing(mail: MailModel):
     temp = await Temp.get_or_404(mail.temp_id)
     message_text = temp.text.format(**mail.params)
