@@ -19,4 +19,4 @@ class Event(db.Model):
     service = db.Column(db.String())
     url = db.Column(db.String())
     status_code = db.Column(db.Integer)
-    response_time = db.Column(db.DateTime)
+    response_time = db.Column(db.Float)

@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from aio_pika import connect, Message
 
 from src.api import goods_service, user_service, mail_service
@@ -11,6 +11,7 @@ from src import config
 goods_router = APIRouter()
 
 
+# TODO: !- change all routes parameters format to pydantic models -!
 @goods_router.post("/items/add")
 async def add_item(item: ItemModel, user_id: str = Depends(get_user_by_token)):
     # request to goods service with item as dict if user verified

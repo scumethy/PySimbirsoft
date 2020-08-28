@@ -4,5 +4,5 @@ from src import config
 
 # init routers to fastapi application
 def put_routers(app):
-    app.include_router(users.users_router)
-    app.include_router(goods.goods_router)
+    app.include_router(users.users_router, tags=["users"])
+    app.include_router(goods.goods_router, tags=["goods"])

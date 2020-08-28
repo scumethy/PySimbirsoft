@@ -16,6 +16,7 @@ users_router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="account/login")
 
 
+# TODO: !- change all routes parameters format to pydantic models -!
 async def get_user_by_token(token: str = Depends(oauth2_scheme)):
     print(token)
     if token:
